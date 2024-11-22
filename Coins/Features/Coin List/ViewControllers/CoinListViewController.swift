@@ -24,6 +24,10 @@ class CoinListViewController: UIViewController {
     private var loadingView: LoadingView!
     var errorView: ErrorView!
     
+    private var searchController: UISearchController!
+    private var searchResults: [Coin] = []
+    private var isSearchActive: Bool = false
+    
     private var filterItems: [FilterItem] = [
         FilterItem(title: "Active", filter: .active, isSelected: false),
         FilterItem(title: "New", filter: .new, isSelected: false),
@@ -44,10 +48,12 @@ class CoinListViewController: UIViewController {
         setupLoadingView()
         setupErrorView()
         setupRefreshControl()
+        setupSearchController()
         
         handleOfflineNetwork()
         
         viewModel.reloadTableViewClosure = { [weak self] in
+            
             self?.tableView.reloadData()
         }
         
@@ -86,9 +92,20 @@ class CoinListViewController: UIViewController {
         }
         
         self.navigationItem.title = "Coins"
-
+        
         let lineImage = UIImage.fromColor(.gray)
         self.navigationController?.navigationBar.standardAppearance.shadowImage = lineImage
+    }
+    
+    private func setupSearchController() {
+        searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.delegate = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search by name or symbol"
+        
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
     }
     
     private func setupLoadingView() {
@@ -259,16 +276,22 @@ class CoinListViewController: UIViewController {
 extension CoinListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if isSearchActive {
+            return searchResults.count
+        }
         return viewModel.numberOfRows()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let coin = viewModel.coinAt(index: indexPath.row)
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "CoinCell", for: indexPath) as! CoinCell
         
-        cell.cofigure(with: coin)
-        
+        if isSearchActive {
+            let coin = searchResults[indexPath.row]
+            cell.configure(with: coin)
+        } else {
+            let coin = viewModel.coinAt(index: indexPath.row)
+            cell.configure(with: coin)
+        }
         return cell
     }
     
@@ -297,5 +320,36 @@ extension CoinListViewController: UICollectionViewDataSource, UICollectionViewDe
         applySelectedFilters()
         
         collectionView.reloadItems(at: [indexPath])
+    }
+}
+
+extension CoinListViewController: UISearchResultsUpdating, UISearchControllerDelegate {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        
+        let query = searchController.searchBar.text?.lowercased() ?? ""
+
+        // If search query is not empty, filter coins by the query
+        if !query.isEmpty {
+            // Filter coins based on the search query
+            searchResults = viewModel.coins.filter { coin in
+                coin.name.lowercased().contains(query) || coin.symbol.lowercased().contains(query)
+            }
+        } else {
+            searchResults.removeAll()
+        }
+        
+        tableView.reloadData()
+    }
+    
+    func willPresentSearchController(_ searchController: UISearchController) {
+        isSearchActive = true
+        collectionView.isHidden = true
+    }
+    
+    func willDismissSearchController(_ searchController: UISearchController) {
+        isSearchActive = false
+        collectionView.isHidden = false
+        applySelectedFilters()
     }
 }

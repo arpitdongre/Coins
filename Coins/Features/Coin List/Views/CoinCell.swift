@@ -62,7 +62,7 @@ class CoinCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func cofigure(with coin: Coin) {
+    func configure(with coin: Coin) {
         nameLabel.text = coin.name
         symbolLabel.text = coin.symbol
         coinImageView.image = UIImage(named: coin.imageName)
