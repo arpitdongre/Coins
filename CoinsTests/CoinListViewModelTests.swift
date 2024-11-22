@@ -31,7 +31,6 @@ class CoinListViewModelTests: XCTestCase {
     }
     
     // MARK: Test loadCoins from API
-  
     func testLoadCoins_fromAPI_success() async {
       
         let mockCoins = [
