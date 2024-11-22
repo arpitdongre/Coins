@@ -45,6 +45,8 @@ class CoinListViewController: UIViewController {
         setupErrorView()
         setupRefreshControl()
         
+        handleOfflineNetwork()
+        
         viewModel.reloadTableViewClosure = { [weak self] in
             self?.tableView.reloadData()
         }
@@ -128,11 +130,6 @@ class CoinListViewController: UIViewController {
             offlineLabel.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 0)
         ]
         )
-    }
-    
-    private func showErrorView() {
-        errorView = ErrorView()
-        view.addSubview(errorView)
     }
     
     func handleOfflineNetwork() {

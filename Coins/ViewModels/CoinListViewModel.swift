@@ -43,7 +43,8 @@ class CoinListViewModel {
     
     @MainActor
     func loadCoins() async {
-        
+        self.hideErrorViewClosure?()
+
         showLoadingIndicatorClosure?()
         if isConnectedToInternet {
             await self.fetchCoins()
@@ -53,7 +54,6 @@ class CoinListViewModel {
             self.coins = offlineCoins ?? []
             self.filteredCoins = self.coins
             self.reloadTableViewClosure?()
-            self.hideErrorViewClosure?()
         }
     }
     
@@ -67,7 +67,6 @@ class CoinListViewModel {
             
             reloadTableViewClosure?()
             self.hideLoadingIndicatorClosure?()
-            self.hideErrorViewClosure?()
         } catch {
             self.showErrorViewClosure?()
             self.hideLoadingIndicatorClosure?()
