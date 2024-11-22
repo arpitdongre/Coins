@@ -48,7 +48,7 @@ class CoinListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.coinAt(index: 1).name, "Ethereum")
     }
     
-    // MARK: Test loadCoins from CoreData (when offline)
+    // MARK: Test loadCoins from CoreData
     func testLoadCoins_fromCoreData_whenOffline() async {
         // Given
         let offlineCoins = [
@@ -83,5 +83,46 @@ class CoinListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.numberOfRows(), 2)
         XCTAssertEqual(viewModel.coinAt(index: 0).name, "Bitcoin")
         XCTAssertEqual(viewModel.coinAt(index: 1).name, "Tether")
+    }
+    
+    func testApplyFilters_WhenActiveOrNewFiltersApplied() {
+
+        let mockCoins = [
+            Coin(name: "Bitcoin", symbol: "BTC", isNew: false, isActive: true, type: .coin),
+            Coin(name: "Ethereum", symbol: "ETH", isNew: true, isActive: true, type: .coin),
+            Coin(name: "Ripple", symbol: "XRP", isNew: false, isActive: false, type: .coin),
+            Coin(name: "Tether", symbol: "USDT", isNew: true, isActive: true, type: .token),
+            Coin(name: "Binance Coin", symbol: "BNB", isNew: false, isActive: true, type: .coin)
+        ]
+        
+        viewModel.coins = mockCoins
+        
+        viewModel.applyFilters([.active, .new])
+        
+        XCTAssertEqual(viewModel.filteredCoins.count, 4)
+        XCTAssertTrue(viewModel.filteredCoins.contains { $0.name == "Bitcoin" })
+        XCTAssertTrue(viewModel.filteredCoins.contains { $0.name == "Ethereum" })
+        XCTAssertTrue(viewModel.filteredCoins.contains { $0.name == "Tether" })
+        XCTAssertTrue(viewModel.filteredCoins.contains { $0.name == "Binance Coin" })
+    }
+    
+    func testApplyFilters_WhenActiveOrTokenFiltersApplied() {
+        let mockCoins = [
+            Coin(name: "Bitcoin", symbol: "BTC", isNew: false, isActive: true, type: .coin),
+            Coin(name: "Ethereum", symbol: "ETH", isNew: true, isActive: true, type: .coin),
+            Coin(name: "Ripple", symbol: "XRP", isNew: false, isActive: false, type: .coin),
+            Coin(name: "Tether", symbol: "USDT", isNew: true, isActive: true, type: .token),
+            Coin(name: "Binance Coin", symbol: "BNB", isNew: false, isActive: true, type: .coin)
+        ]
+        
+        viewModel.coins = mockCoins
+        
+        viewModel.applyFilters([.active, .onlyTokens])
+        
+        XCTAssertEqual(viewModel.filteredCoins.count, 4)
+        XCTAssertTrue(viewModel.filteredCoins.contains { $0.name == "Bitcoin" })
+        XCTAssertTrue(viewModel.filteredCoins.contains { $0.name == "Ethereum" })
+        XCTAssertTrue(viewModel.filteredCoins.contains { $0.name == "Tether" })
+        XCTAssertTrue(viewModel.filteredCoins.contains { $0.name == "Binance Coin" })
     }
 }
