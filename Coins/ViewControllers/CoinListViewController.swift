@@ -71,7 +71,7 @@ class CoinListViewController: UIViewController {
         
         viewModel.hideErrorViewClosure = {
             [weak self] in
-            self?.errorView.isHidden = true
+            self?.errorView.hideError()
         }
         
         errorView.retryButtonTapped = {
