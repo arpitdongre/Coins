@@ -1,6 +1,6 @@
 ### **Description**
 
-This PR is created to provide an easy review of the code for the **Coins App** implementation. The app displays a list of the Crypto Coins & Tokens fetched from an API.
+The app displays a list of the Crypto Coins & Tokens fetched from an API.
 
 #### **Key Highlights:**
 
